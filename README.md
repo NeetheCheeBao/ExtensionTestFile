@@ -4,3 +4,7 @@
 &emsp;&emsp;**生成的文件每个仅5字节**
 
 <img width="439" height="443" alt="image" src="https://github.com/user-attachments/assets/1ff918ff-c1aa-49c3-8751-efea98e5d5cd" />
+## 涉及的文件类型
+&emsp;&emsp;**视频：avi wmv wmp wm asf mpg mpeg mpe m1v m2v mpv2 mp2v ts tp tpr trp vob ifo ogm ogv mp4 m4v m4p m4b 3gp 3gpp 3g2 3gp2 mkv rm ram rmvb rpm flv mov qt nsv dpg m2ts m2t mts dvr-ms k3g skm evo nsr amv divx webm wtv f4v mxf**
+&emsp;&emsp;**音频：wav wma mpa mp2 m1a m2a mp3 ogg m4a aac mka ra flac ape mpc mod ac3 eac3 dts dtshd wv tak cda dsf tta aiff aif opus amr**
+&emsp;&emsp;**播放列表：asx m3u m3u8 pls wvx wax wmx cue mpls mpl dpl xspf mpd**
