@@ -1,5 +1,9 @@
 # ExtensionTestFile
 
+[![Python](https://img.shields.io/badge/Python-3.x-blue.svg)](#)
+[![Platform](https://img.shields.io/badge/Platform-Windows-win.svg)](#)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 一键生成各类常见格式的“空文件”，你可以直观地通过**文件图标**的变化，判断这些扩展名是否已正确关联到你安装的播放器。
 
 - **轻量**：生成的文件占用极小（仅5 bytes/个）。
