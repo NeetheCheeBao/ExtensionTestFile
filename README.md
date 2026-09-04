@@ -10,7 +10,7 @@
 - **分类**：自动归类 `视频`、`音频`、`播放列表` 三个文件夹。
 
 ## 📸 部分展示
-<img src="/screenshot/demo.png" />
+<img src="screenshot/demo.png" />
 
 ## 📂 支持的格式
 
@@ -28,3 +28,20 @@ wav wma mpa mp2 m1a m2a mp3 ogg m4a aac mka ra flac ape mpc mod ac3 eac3 dts dts
 ```text
 asx m3u m3u8 pls wvx wax wmx cue mpls mpl dpl xspf mpd
 ```
+
+## ⬇️ 下载使用
+
+前往 [Releases](https://github.com/NeetheCheeBao/ExtensionTestFile/releases) 页面下载
+
+## 🛠️ 本地编译
+```bash
+.\build.bat
+```
+或
+```python
+pyinstaller -F -w -n CreateExtensionTestFile.x86 main.py
+```
+
+## ⚖️ 许可证
+
+本项目采用 MIT 许可证 - 详情请参阅 [LICENSE](LICENSE) 文件。
