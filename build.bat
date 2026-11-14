@@ -2,83 +2,97 @@
 setlocal EnableExtensions EnableDelayedExpansion
 cd /d "%~dp0"
 
-where pyinstaller >nul 2>&1
+if not defined CXX set "CXX=g++"
+if not defined WR  set "WR=windres"
+
+where "%CXX%" >nul 2>&1
 if errorlevel 1 (
-  echo ERROR: pyinstaller not found on PATH.
-  echo Install PyInstaller with 'pip install pyinstaller', or check your Environment Variables.
+  echo ERROR: g++ not found on PATH.
+  echo Install MinGW-w64 and add its bin folder to PATH, or set CXX=...
   echo.
   pause
   exit /b 1
 )
 
-where python >nul 2>&1
+where "%WR%" >nul 2>&1
 if errorlevel 1 (
-  echo ERROR: python not found on PATH.
-  echo Install Python and add it to PATH.
+  echo ERROR: windres not found on PATH.
+  echo Install MinGW-w64 and add its bin folder to PATH, or set WR=...
   echo.
   pause
   exit /b 1
 )
 
-if not exist main.py (
-  echo ERROR: main.py not found in current directory.
-  echo.
-  pause
-  exit /b 1
-)
+set "NAME=CreateExtensionTestFile"
+set "OUT=dist\%NAME%.exe"
+set "OBJDIR=%TEMP%\ExtensionTestFile_build"
+set "RES=%OBJDIR%\app_res.o"
 
-set "NAME=CreateExtensionTestFile.x86"
-set "EXE_OUT=dist\%NAME%.exe"
-set "BAR_WIDTH=30"
-set /a TOTAL_STEPS=5
-set /a CURRENT_STEP=0
+set "SRCS=src\main.cpp src\generator.cpp"
 
-cls
+set /a TOTAL=2
+for %%F in (%SRCS%) do set /a TOTAL+=1
+set /a STEP=0
 
-call :progress "Cleaning build artifacts..."
-if exist dist rmdir /s /q dist >nul 2>&1
-if exist build rmdir /s /q build >nul 2>&1
-if exist "%NAME%.spec" del /f /q "%NAME%.spec" >nul 2>&1
-mkdir dist 2>nul
+if not exist dist mkdir dist
+if exist "%OBJDIR%" rmdir /s /q "%OBJDIR%" >nul 2>&1
+mkdir "%OBJDIR%" 2>nul
 
-call :progress "Analyzing dependencies..."
-python -c "import PyInstaller" >nul 2>&1
+taskkill /F /IM %NAME%.exe >nul 2>&1
+
+set "CFLAGS=-std=c++17 -O2 -Wall -Wextra -municode -DWINVER=0x0A00 -D_WIN32_WINNT=0x0A00 -I . -I src"
+
+call :progress "resources (windres)"
+"%WR%" -I assets -O coff assets\app.rc -o "%RES%"
 if errorlevel 1 goto :fail
 
-call :progress "Compiling main.py to executable..."
-pyinstaller -F -w -n %NAME% --icon=icon.ico --add-data "icon.ico;." main.py >nul 2>&1
+set "OBJS="
+for %%F in (%SRCS%) do (
+  set "name=%%F"
+  set "name=!name:\=_!"
+  set "name=!name:.cpp=.o!"
+  call :progress "compile %%F"
+  "%CXX%" !CFLAGS! -c "%%F" -o "%OBJDIR%\!name!"
+  if errorlevel 1 goto :fail
+  set OBJS=!OBJS! "%OBJDIR%\!name!"
+)
+
+call :progress "link %OUT%"
+"%CXX%" !OBJS! "%RES%" -o "%OUT%" ^
+  -municode ^
+  -mwindows ^
+  -s ^
+  -static-libgcc -static-libstdc++ -static ^
+  -lshell32
 if errorlevel 1 goto :fail
 
-call :progress "Cleaning temporary build files..."
-if exist build rmdir /s /q build >nul 2>&1
-if exist "%NAME%.spec" del /f /q "%NAME%.spec" >nul 2>&1
-
-call :progress "Finalizing..."
-
 echo.
-echo BUILD OK  -^> %EXE_OUT%
-echo.
-
-timeout /t 1 /nobreak >nul
+echo BUILD OK  -^> %OUT%
+rmdir /s /q "%OBJDIR%" >nul 2>&1
+call :hold 3
 exit /b 0
 
 :fail
 echo.
 echo BUILD FAILED
+if exist "%OBJDIR%" rmdir /s /q "%OBJDIR%" >nul 2>&1
 echo.
 pause
 exit /b 1
 
+:hold
+echo.
+"%SystemRoot%\System32\timeout.exe" /t %~1 /nobreak >nul 2>&1
+goto :eof
+
 :progress
-set /a CURRENT_STEP+=1
-set /a "pct=CURRENT_STEP*100/TOTAL_STEPS"
-set /a "filled=CURRENT_STEP*BAR_WIDTH/TOTAL_STEPS"
-if !filled! gtr %BAR_WIDTH% set "filled=%BAR_WIDTH%"
-
+set /a STEP+=1
+set /a "pct=STEP*100/TOTAL"
+set /a "filled=STEP*30/TOTAL"
+if !filled! gtr 30 set "filled=30"
 set "bar="
-for /L %%i in (1,1,%BAR_WIDTH%) do (
-    if %%i LEQ !filled! (set "bar=!bar!=") else (set "bar=!bar! ")
+for /L %%i in (1,1,30) do (
+  if %%i LEQ !filled! (set "bar=!bar!=") else (set "bar=!bar! ")
 )
-
 echo [!bar!] !pct!%%  %~1
 goto :eof
